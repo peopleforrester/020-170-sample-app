@@ -1,0 +1,46 @@
+version: 0.2
+
+env:
+  variables:
+    COVERAGE_THRESHOLD: "80"
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - pip install pytest pytest-cov coverage
+
+  pre_build:
+    commands:
+      - echo "Running linting checks..."
+      - pip install flake8
+      - flake8 src/ --count --select=E9,F63,F7,F82 --show-source --statistics
+
+  build:
+    commands:
+      - echo "Running tests with coverage..."
+      - pytest tests/ --cov=src --cov-report=xml --cov-report=html --cov-report=term --cov-fail-under=$COVERAGE_THRESHOLD --junitxml=test-results.xml
+      - echo "Coverage threshold of ${COVERAGE_THRESHOLD}% enforced"
+
+  post_build:
+    commands:
+      - echo "Build status $CODEBUILD_BUILD_SUCCEEDING"
+      - if [ "$CODEBUILD_BUILD_SUCCEEDING" = "0" ]; then echo "Build failed - check test results and coverage"; fi
+
+reports:
+  pytest-reports:
+    files:
+      - "test-results.xml"
+    file-format: JUNITXML
+  coverage-reports:
+    files:
+      - "coverage.xml"
+    file-format: COBERTURAXML
+
+artifacts:
+  files:
+    - "htmlcov/**/*"
+    - "coverage.xml"
+    - "test-results.xml"
+  name: "test-reports-${CODEBUILD_BUILD_NUMBER}"
