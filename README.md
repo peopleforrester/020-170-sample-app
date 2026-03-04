@@ -27,5 +27,5 @@ pytest tests/ --cov=src --cov-report=term --cov-fail-under=80
 
 ## Build Badge
 
-![Build Status](BADGE_URL_PLACEHOLDER)
+![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNy...&branch=main)
 # test change
